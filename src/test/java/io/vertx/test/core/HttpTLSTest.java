@@ -285,6 +285,7 @@ public abstract class HttpTLSTest extends HttpTestBase {
     boolean serverUsesCrl;
     boolean serverOpenSSL;
     boolean serverUsesAlpn;
+    boolean useProxy;
     String[] clientEnabledCipherSuites = new String[0];
     String[] serverEnabledCipherSuites = new String[0];
     String[] clientEnabledSecureTransportProtocol   = new String[0];
@@ -358,6 +359,11 @@ public abstract class HttpTLSTest extends HttpTestBase {
       return this;
     }
 
+    TLSTest useProxy() {
+      useProxy = true;
+      return this;
+    }
+
     void pass() {
       run(true);
     }
@@ -389,6 +395,10 @@ public abstract class HttpTLSTest extends HttpTestBase {
       }
       for (String protocols: clientEnabledSecureTransportProtocol) {
         options.addEnabledSecureTransportProtocol(protocols);
+      }
+      if (useProxy) {
+        options.setProxyHost("localhost");
+        options.setProxyPort(13128);
       }
       client = createHttpClient(options);
       HttpServerOptions serverOptions = new HttpServerOptions();
