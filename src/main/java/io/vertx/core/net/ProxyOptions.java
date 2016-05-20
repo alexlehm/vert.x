@@ -51,11 +51,11 @@ public class ProxyOptions implements Cloneable {
    * @param other  the options to copy
    */
   public ProxyOptions(ProxyOptions other) {
-    proxyHost = (other.getProxyHost());
-    proxyPort = (other.getProxyPort());
-    proxyUsername = (other.getProxyUsername());
-    proxyPassword = (other.getProxyPassword());
-    proxyType = (other.getProxyType());
+    proxyHost = other.getProxyHost();
+    proxyPort = other.getProxyPort();
+    proxyUsername = other.getProxyUsername();
+    proxyPassword = other.getProxyPassword();
+    proxyType = other.getProxyType();
   }
 
   /**
