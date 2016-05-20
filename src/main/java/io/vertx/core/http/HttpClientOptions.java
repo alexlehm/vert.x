@@ -119,8 +119,6 @@ public class HttpClientOptions extends ClientOptionsBase {
   private List<HttpVersion> alpnVersions;
   private boolean h2cUpgrade;
 
-  private ProxyOptions proxyOptions;
-
   /**
    * Default constructor
    */
@@ -150,7 +148,6 @@ public class HttpClientOptions extends ClientOptionsBase {
     this.initialSettings = other.initialSettings != null ? new Http2Settings(other.initialSettings) : null;
     this.alpnVersions = other.alpnVersions != null ? new ArrayList<>(other.alpnVersions) : null;
     this.h2cUpgrade = other.h2cUpgrade;
-    this.proxyOptions = other.proxyOptions.clone();
   }
 
   /**
@@ -179,7 +176,6 @@ public class HttpClientOptions extends ClientOptionsBase {
     initialSettings = new Http2Settings();
     alpnVersions = new ArrayList<>(DEFAULT_ALPN_VERSIONS);
     h2cUpgrade = DEFAULT_H2C_UPGRADE;
-    proxyOptions = null;
   }
 
   @Override
@@ -606,23 +602,13 @@ public class HttpClientOptions extends ClientOptionsBase {
   }
 
   /**
-   * Set proxy hostname for ssl connections via CONNECT proxy (e.g. Squid).
+   * Set proxy options for https connections via CONNECT proxy (e.g. Squid) or a SOCKS proxy.
    *
-   * @param proxyHost proxy hostname to use for ssl connections
+   * @param proxyOptions proxy options object
    * @return a reference to this, so the API can be used fluently
    */
   public HttpClientOptions setProxyOptions(ProxyOptions proxyOptions) {
-    this.proxyOptions = proxyOptions;
-    return this;
-  }
-
-  /**
-   * Get proxy hostname for ssl connections
-   *
-   * @return proxy hostname
-   */
-  public ProxyOptions getProxyOptions() {
-    return proxyOptions;
+    return (HttpClientOptions) super.setProxyOptions(proxyOptions);
   }
 
   @Override
@@ -647,7 +633,6 @@ public class HttpClientOptions extends ClientOptionsBase {
     if (initialSettings == null ? that.initialSettings != null : !initialSettings.equals(that.initialSettings)) return false;
     if (alpnVersions == null ? that.alpnVersions != null : !alpnVersions.equals(that.alpnVersions)) return false;
     if (h2cUpgrade != that.h2cUpgrade) return false;
-    if (proxyOptions == null ? that.proxyOptions != null : !proxyOptions.equals(that.proxyOptions)) return false;
 
     return true;
   }
@@ -669,9 +654,6 @@ public class HttpClientOptions extends ClientOptionsBase {
     result = 31 * result + (initialSettings != null ? initialSettings.hashCode() : 0);
     result = 31 * result + (alpnVersions != null ? alpnVersions.hashCode() : 0);
     result = 31 * result + (h2cUpgrade ? 1 : 0);
-    result = 31 * result + (proxyOptions != null ? proxyOptions.hashCode() : 0);
     return result;
   }
 }
-
-

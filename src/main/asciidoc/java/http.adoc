@@ -1978,8 +1978,8 @@ Here's an example:
 ----
 HttpClientOptions options = new HttpClientOptions()
     .setProxyOptions(new ProxyOptions()
-    .setProxyHost("localhost").setProxyPort(3128)
-    .setProxyUsername("username").setProxyPassword("secret"));
+        .setProxyHost("localhost").setProxyPort(3128)
+        .setProxyUsername("username").setProxyPassword("secret"));
 HttpClient client = vertx.createHttpClient(options);
 ----
 

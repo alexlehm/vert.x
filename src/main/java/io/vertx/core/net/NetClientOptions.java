@@ -50,8 +50,6 @@ public class NetClientOptions extends ClientOptionsBase {
   private long reconnectInterval;
   private String hostnameVerificationAlgorithm;
 
-  private ProxyOptions proxyOptions;
-
     /**
    * The default constructor
    */
@@ -70,7 +68,6 @@ public class NetClientOptions extends ClientOptionsBase {
     this.reconnectAttempts = other.getReconnectAttempts();
     this.reconnectInterval = other.getReconnectInterval();
     this.hostnameVerificationAlgorithm = other.getHostnameVerificationAlgorithm();
-    this.proxyOptions = other.proxyOptions != null ? other.proxyOptions.clone() : null;
   }
 
   /**
@@ -88,7 +85,6 @@ public class NetClientOptions extends ClientOptionsBase {
     this.reconnectAttempts = DEFAULT_RECONNECT_ATTEMPTS;
     this.reconnectInterval = DEFAULT_RECONNECT_INTERVAL;
     this.hostnameVerificationAlgorithm = DEFAULT_HOSTNAME_VERIFICATION_ALGORITHM;
-    proxyOptions = null;
   }
 
   @Override
@@ -251,7 +247,7 @@ public class NetClientOptions extends ClientOptionsBase {
    */
   public NetClientOptions setReconnectInterval(long interval) {
     if (interval < 1) {
-      throw new IllegalArgumentException("reconnect interval nust be >= 1");
+      throw new IllegalArgumentException("reconnect interval must be >= 1");
     }
     this.reconnectInterval = interval;
     return this;
@@ -287,23 +283,13 @@ public class NetClientOptions extends ClientOptionsBase {
   }
 
   /**
-   * Set proxy hostname for ssl connections via CONNECT proxy (e.g. Squid).
+   * Set proxy options for connections via CONNECT proxy (e.g. Squid) or a SOCKS proxy.
    *
-   * @param proxyHost proxy hostname to use for ssl connections
+   * @param proxyOptions proxy options object
    * @return a reference to this, so the API can be used fluently
    */
   public NetClientOptions setProxyOptions(ProxyOptions proxyOptions) {
-    this.proxyOptions = proxyOptions;
-    return this;
-  }
-
-  /**
-   * Get proxy hostname for ssl connections
-   *
-   * @return proxy hostname
-   */
-  public ProxyOptions getProxyOptions() {
-    return proxyOptions;
+    return (NetClientOptions) super.setProxyOptions(proxyOptions);
   }
 
   @Override
@@ -317,7 +303,6 @@ public class NetClientOptions extends ClientOptionsBase {
     if (reconnectAttempts != that.reconnectAttempts) return false;
     if (reconnectInterval != that.reconnectInterval) return false;
     if (hostnameVerificationAlgorithm != that.hostnameVerificationAlgorithm) return false;
-    if (proxyOptions == null ? that.proxyOptions != null : !proxyOptions.equals(that.proxyOptions)) return false;
 
     return true;
   }
@@ -328,7 +313,6 @@ public class NetClientOptions extends ClientOptionsBase {
     result = 31 * result + reconnectAttempts;
     result = 31 * result + (int) (reconnectInterval ^ (reconnectInterval >>> 32));
     result = 31 * result + hostnameVerificationAlgorithm.hashCode();
-    result = 31 * result + (proxyOptions != null ? proxyOptions.hashCode() : 0);
     return result;
   }
 

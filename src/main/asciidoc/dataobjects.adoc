@@ -105,6 +105,10 @@ Set the key/cert options in pfx format.
 +++
 Set the trust options in pfx format
 +++
+|[[proxyOptions]]`proxyOptions`|`link:dataobjects.html#ProxyOptions[ProxyOptions]`|
++++
+Set proxy options for connections via CONNECT proxy (e.g. Squid) or a SOCKS proxy.
++++
 |[[receiveBufferSize]]`receiveBufferSize`|`Number (int)`|
 +++
 Set the TCP receive buffer size
@@ -699,7 +703,7 @@ Set the protocol version.
 +++
 |[[proxyOptions]]`proxyOptions`|`link:dataobjects.html#ProxyOptions[ProxyOptions]`|
 +++
-Set proxy hostname for ssl connections via CONNECT proxy (e.g. Squid).
+Set proxy options for https connections via CONNECT proxy (e.g. Squid) or a SOCKS proxy.
 +++
 |[[receiveBufferSize]]`receiveBufferSize`|`Number (int)`|
 +++
@@ -1054,7 +1058,7 @@ Set the trust options in pfx format
 +++
 |[[proxyOptions]]`proxyOptions`|`link:dataobjects.html#ProxyOptions[ProxyOptions]`|
 +++
-Set proxy hostname for ssl connections via CONNECT proxy (e.g. Squid).
+Set proxy options for connections via CONNECT proxy (e.g. Squid) or a SOCKS proxy.
 +++
 |[[receiveBufferSize]]`receiveBufferSize`|`Number (int)`|
 +++
