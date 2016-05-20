@@ -1976,8 +1976,10 @@ Here's an example:
 
 [source,java]
 ----
-HttpClientOptions options = new HttpClientOptions().setProxyHost("localhost").setProxyPort(3128);
-options.setProxyUsername("username").setProxyPassword("secret");
+HttpClientOptions options = new HttpClientOptions()
+    .setProxyOptions(new ProxyOptions()
+    .setProxyHost("localhost").setProxyPort(3128)
+    .setProxyUsername("username").setProxyPassword("secret"));
 HttpClient client = vertx.createHttpClient(options);
 ----
 

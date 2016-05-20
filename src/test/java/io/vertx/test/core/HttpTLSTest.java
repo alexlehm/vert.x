@@ -457,12 +457,11 @@ public abstract class HttpTLSTest extends HttpTestBase {
         options.addEnabledSecureTransportProtocol(protocols);
       }
       if (useProxy) {
-        options.setProxyHost("localhost");
-        options.setProxyPort(13128);
-      }
-      if (useProxyAuth) {
-        options.setProxyUsername("username");
-        options.setProxyPassword("username");
+        ProxyOptions proxyOptions = new ProxyOptions().setProxyHost("localhost").setProxyPort(13128);
+        if (useProxyAuth) {
+          proxyOptions.setProxyUsername("username").setProxyPassword("username");
+        }
+        options.setProxyOptions(proxyOptions);
       }
       client = createHttpClient(options);
       HttpServerOptions serverOptions = new HttpServerOptions();

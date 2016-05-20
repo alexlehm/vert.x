@@ -17,6 +17,10 @@ import io.vertx.core.Handler;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.impl.ChannelProvider;
 import io.vertx.core.impl.VertxInternal;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
+import io.vertx.core.net.ProxyOptions;
+import io.vertx.core.net.impl.ChannelProviderAdditionalOperations;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -26,12 +30,16 @@ import java.net.InetSocketAddress;
  */
 public class ProxyChannelProvider implements ChannelProvider {
 
+  private static final Logger log = LoggerFactory.getLogger(ProxyChannelProvider.class);
+
   @Override
   public void connect(VertxInternal vertx, Bootstrap bootstrap, HttpClientOptions options, String host, int port, Handler<AsyncResult<Channel>> channelHandler) {
-    String proxyHost = options.getProxyHost();
-    int proxyPort = options.getProxyPort();
-    String proxyUsername = options.getProxyUsername();
-    String proxyPassword = options.getProxyPassword();
+    ProxyOptions proxyOptions = options.getProxyOptions();
+    String proxyHost = proxyOptions.getProxyHost();
+    int proxyPort = proxyOptions.getProxyPort();
+    String proxyUsername = proxyOptions.getProxyUsername();
+    String proxyPassword = proxyOptions.getProxyPassword();
+
     vertx.resolveHostname(proxyHost, dnsRes -> {
       if (dnsRes.succeeded()) {
         InetAddress address = dnsRes.result();
@@ -42,19 +50,20 @@ public class ProxyChannelProvider implements ChannelProvider {
         } else {
           proxy = new HttpProxyHandler(proxyAddr);
         }
-        HttpClientCodec codec = new HttpClientCodec(4096, 8192, options.getMaxChunkSize(), false, false);
         bootstrap.handler(new ChannelInitializer<Channel>() {
           @Override
           protected void initChannel(Channel ch) throws Exception {
             ChannelPipeline pipeline = ch.pipeline();
             pipeline.addLast("proxy", proxy);
-            pipeline.addLast("codec", codec);
+//            addl.pipelineSetup(pipeline);
             pipeline.addLast(new ChannelInboundHandlerAdapter() {
               @Override
               public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+                log.info("userEventTriggered "+evt.toString());
                 if (evt instanceof ProxyConnectionEvent) {
+                  log.info("proxyconnectevent "+evt.toString());
                   pipeline.remove(proxy);
-                  pipeline.remove(codec);
+//                  addl.pipelineDeprov(pipeline);
                   pipeline.remove(this);
                   channelHandler.handle(Future.succeededFuture(ch));
                 }

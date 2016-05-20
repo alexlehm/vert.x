@@ -30,6 +30,9 @@ public class NetClientOptionsConverter {
     if (json.getValue("hostnameVerificationAlgorithm") instanceof String) {
       obj.setHostnameVerificationAlgorithm((String)json.getValue("hostnameVerificationAlgorithm"));
     }
+    if (json.getValue("proxyOptions") instanceof JsonObject) {
+      obj.setProxyOptions(new io.vertx.core.net.ProxyOptions((JsonObject)json.getValue("proxyOptions")));
+    }
     if (json.getValue("reconnectAttempts") instanceof Number) {
       obj.setReconnectAttempts(((Number)json.getValue("reconnectAttempts")).intValue());
     }

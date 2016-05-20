@@ -7,6 +7,8 @@ import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import io.vertx.core.net.NetClient;
 import io.vertx.core.net.NetClientOptions;
 import io.vertx.core.net.NetSocket;
@@ -25,6 +27,8 @@ import io.vertx.core.streams.Pump;
  * @author <a href="http://oss.lehmann.cx/">Alexander Lehmann</a>
  */
 public class ConnectHttpProxy {
+
+  private static final Logger log = LoggerFactory.getLogger(ConnectHttpProxy.class);
 
   private final String username;
   private HttpServer server;
@@ -101,6 +105,7 @@ public class ConnectHttpProxy {
             Pump.pump(serverSocket, clientSocket).start();
             Pump.pump(clientSocket, serverSocket).start();
           } else {
+            log.error("connect() failed", result.cause());
             request.response().setStatusCode(403).end("request failed");
           }
         });
