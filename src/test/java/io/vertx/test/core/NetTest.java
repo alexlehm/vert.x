@@ -24,6 +24,8 @@ import io.vertx.core.http.ClientAuth;
 import io.vertx.core.impl.*;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import io.vertx.core.net.*;
 import io.vertx.core.net.impl.SocketAddressImpl;
 import org.junit.Assume;
@@ -53,6 +55,8 @@ import static io.vertx.test.core.TestUtils.assertNullPointerException;
  * @author <a href="http://tfox.org">Tim Fox</a>
  */
 public class NetTest extends VertxTestBase {
+
+  private static final Logger log = LoggerFactory.getLogger(NetTest.class);
 
   private NetServer server;
   private NetClient client;
@@ -2204,6 +2208,42 @@ public class NetTest extends VertxTestBase {
         //Should be able to connect
         assertTrue(ar2.succeeded());
         testComplete();
+      });
+    });
+    await();
+  }
+
+  @Test
+  public void testWithSocks5Proxy() {
+    server.close();
+    NetServerOptions options = new NetServerOptions().setHost("localhost").setPort(1234);
+
+    NetServer server = vertx.createNetServer(options);
+
+    NetClientOptions clientOptions = new NetClientOptions()
+        .setProxyOptions(new ProxyOptions().setProxyType(ProxyType.SOCKS5).setProxyPort(11080));
+    NetClient client = vertx.createNetClient(clientOptions);
+    server.connectHandler(sock -> {
+
+    });
+    SocksProxy proxy = new SocksProxy(null);
+    proxy.start(vertx, v -> {
+      server.listen(ar -> {
+        assertTrue(ar.succeeded());
+        client.connect(1234, "localhost", ar2 -> {
+          if (ar2.failed()) {
+            log.warn("failed", ar2.cause());
+          }
+          assertTrue(ar2.succeeded());
+          // wait some time to give the proxy protocol a chance to start
+          // TODO: this shouldn't be necessary
+          vertx.setTimer(100, t -> {
+            // make sure we have gone through the proxy
+            assertEquals("localhost:1234", proxy.getLastUri());
+            proxy.stop();
+            testComplete();
+          });
+        });
       });
     });
     await();

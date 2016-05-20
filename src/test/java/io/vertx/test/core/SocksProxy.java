@@ -98,6 +98,7 @@ public class SocksProxy {
           log.info("connect: "+host+":"+port);
           socket.handler(null);
           log.info("connecting to " + host + ":" + port);
+          lastUri = host+":"+port;
           NetClient netClient = vertx.createNetClient(new NetClientOptions());
           netClient.connect(port, host, result -> {
             if (result.succeeded()) {
@@ -121,8 +122,8 @@ public class SocksProxy {
         socket.write(serverReply);
       });
     });
-    server.listen(server -> {
-      log.info("server started");
+    server.listen(result -> {
+      log.info("socks5 server started");
       finishedHandler.handle(null);
     });
   }
