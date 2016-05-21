@@ -22,7 +22,6 @@ import io.netty.resolver.NoopAddressResolverGroup;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
-import io.vertx.core.http.impl.ConnectionManager;
 import io.vertx.core.impl.VertxInternal;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
@@ -101,7 +100,7 @@ public class ProxyChannelProvider implements ChannelProvider {
                   if (clientImplClass instanceof NetClientImpl) {
                     log.warn("didn't expect proxy user event");
                   }
-                  channelHandler.handle(Future.succeededFuture(ch));
+                  callHandler(channelHandler, Future.succeededFuture(ch));
                 }
               }
             });
@@ -114,15 +113,25 @@ public class ProxyChannelProvider implements ChannelProvider {
             if (!(clientImplClass instanceof NetClientImpl)) {
               log.info("handle succeeded skipped (expecting ProxyUserEvent) ");
             } else {
-              channelHandler.handle(Future.succeededFuture(future.channel()));
+              callHandler(channelHandler, Future.succeededFuture(future.channel()));
             }
           } else {
-            channelHandler.handle(Future.failedFuture(res.cause()));
+            callHandler(channelHandler, Future.failedFuture(res.cause()));
           }
         });
       } else {
-        channelHandler.handle(Future.failedFuture(dnsRes.cause()));
+        callHandler(channelHandler, Future.failedFuture(dnsRes.cause()));
       }
     });
+  }
+
+  /**
+   * @param channelHandler
+   * @param future
+   */
+  private void callHandler(Handler<AsyncResult<Channel>> channelHandler, Future<Channel> future) {
+    String type = future.succeeded() ? "succeeded" : "failed";
+    log.info("calling channelHandler with "+type+" future "+future.toString());
+    channelHandler.handle(future);
   }
 }

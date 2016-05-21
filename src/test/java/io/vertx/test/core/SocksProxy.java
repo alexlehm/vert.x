@@ -1,13 +1,8 @@
 package io.vertx.test.core;
 
-import java.util.Base64;
-
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.http.HttpMethod;
-import io.vertx.core.http.HttpServer;
-import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.core.net.NetClient;
@@ -29,7 +24,7 @@ import io.vertx.core.streams.Pump;
  *
  * @author <a href="http://oss.lehmann.cx/">Alexander Lehmann</a>
  */
-public class SocksProxy {
+public class SocksProxy extends TestProxyBase {
 
   private static final Logger log = LoggerFactory.getLogger(SocksProxy.class);
 
@@ -39,30 +34,14 @@ public class SocksProxy {
   private static final Buffer connectResponse = Buffer.buffer(new byte[] { 5, 0, 0, 1, 0x7f, 0, 0, 1, 0x27, 0x10 });
   private static final Buffer errorResponse = Buffer.buffer(new byte[] { 5, 4, 0, 1, 0, 0, 0, 0, 0, 0 });
 
-  private final String username;
+  private static final Buffer clientInitAuth = Buffer.buffer(new byte[] { 5, 2, 0, 2 });
+  private static final Buffer serverReplyAuth = Buffer.buffer(new byte[] { 5, 2 });
+  private static final Buffer authSuccess = Buffer.buffer(new byte[] { 1, 0 });
+  private static final Buffer authFailed = Buffer.buffer(new byte[] { 1, 1 });
+
   private NetServer server;
-  private String lastUri;
-  private String forceUri;
-
   public SocksProxy(String username) {
-    this.username = username;
-  }
-
-  /**
-   * check the last accessed host:ip
-   * 
-   * @return the lastUri
-   */
-  public String getLastUri() {
-    return lastUri;
-  }
-
-  /**
-   * force uri to connect to a given string (e.g. "localhost:4443") this is to simulate a host that only resolves on the
-   * proxy
-   */
-  public void setForceUri(String uri) {
-    forceUri = uri;
+    super(username);
   }
 
   /**
@@ -73,17 +52,21 @@ public class SocksProxy {
    * @param finishedHandler
    *          will be called when the start has started
    */
+  @Override
   public void start(Vertx vertx, Handler<Void> finishedHandler) {
     NetServerOptions options = new NetServerOptions();
     options.setHost("localhost").setPort(11080);
     server = vertx.createNetServer(options);
     server.connectHandler(socket -> {
       socket.handler(buffer -> {
-        if (!buffer.equals(clientInit)) {
-          throw new IllegalStateException("expected "+toHex(clientInit)+", got "+toHex(buffer));
+        Buffer expectedInit = username == null ? clientInit : clientInitAuth;
+        if (!buffer.equals(expectedInit)) {
+          throw new IllegalStateException("expected "+toHex(expectedInit)+", got "+toHex(buffer));
         }
+        boolean useAuth = buffer.equals(clientInitAuth);
         log.info("got request: "+toHex(buffer));
-        socket.handler(buffer2 -> {
+
+        final Handler<Buffer> handler = buffer2 -> {
           if(!buffer2.getBuffer(0, clientRequest.length()).equals(clientRequest)) {
             throw new IllegalStateException("expected "+toHex(clientRequest)+", got "+toHex(buffer2));
           }
@@ -97,8 +80,13 @@ public class SocksProxy {
           log.info("got request: "+toHex(buffer2));
           log.info("connect: "+host+":"+port);
           socket.handler(null);
-          log.info("connecting to " + host + ":" + port);
           lastUri = host+":"+port;
+
+          if (forceUri != null) {
+            host = forceUri.substring(0, forceUri.indexOf(':'));
+            port = Integer.valueOf(forceUri.substring(forceUri.indexOf(':')+1));
+          }
+          log.info("connecting to " + host + ":" + port);
           NetClient netClient = vertx.createNetClient(new NetClientOptions());
           netClient.connect(port, host, result -> {
             if (result.succeeded()) {
@@ -112,14 +100,41 @@ public class SocksProxy {
               Pump.pump(clientSocket, socket).start();
             } else {
               log.error("exception", result.cause());
+              socket.handler(null);
               log.info("writing: " + toHex(errorResponse));
               socket.write(errorResponse);
               socket.close();
             }
           });
-        });
-        log.info("writing: "+toHex(serverReply));
-        socket.write(serverReply);
+        };
+
+        if (useAuth) {
+          socket.handler(buffer3 -> {
+            log.info("auth handler");
+            log.info("got request: "+toHex(buffer3));
+            Buffer authReply = Buffer.buffer(new byte[] { 1, (byte)username.length() });
+            authReply.appendString(username);
+            authReply.appendByte((byte)username.length());
+            authReply.appendString(username);
+            if (!buffer3.equals(authReply)) {
+              log.info("expected "+toHex(authReply)+", got "+toHex(buffer3));
+              socket.handler(null);
+              log.info("writing: "+toHex(authFailed));
+              socket.write(authFailed);
+              socket.close();
+            } else {
+              socket.handler(handler);
+              log.info("writing: "+toHex(authSuccess));
+              socket.write(authSuccess);
+            }
+          });
+          log.info("writing: "+toHex(serverReplyAuth));
+          socket.write(serverReplyAuth);
+        } else {
+          socket.handler(handler);
+          log.info("writing: "+toHex(serverReply));
+          socket.write(serverReply);
+        }
       });
     });
     server.listen(result -> {
@@ -145,6 +160,7 @@ public class SocksProxy {
    *
    * Doesn't wait for the close operation to finish
    */
+  @Override
   public void stop() {
     if (server != null) {
       server.close();

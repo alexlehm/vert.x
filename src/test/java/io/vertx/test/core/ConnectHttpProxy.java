@@ -26,33 +26,14 @@ import io.vertx.core.streams.Pump;
  *
  * @author <a href="http://oss.lehmann.cx/">Alexander Lehmann</a>
  */
-public class ConnectHttpProxy {
+public class ConnectHttpProxy extends TestProxyBase {
 
   private static final Logger log = LoggerFactory.getLogger(ConnectHttpProxy.class);
 
-  private final String username;
   private HttpServer server;
-  private String lastUri;
-  private String forceUri;
 
   public ConnectHttpProxy(String username) {
-    this.username = username;
-  }
-
-  /**
-   * check the last accessed host:ip
-   * @return the lastUri
-   */
-  public String getLastUri() {
-    return lastUri;
-  }
-
-  /**
-   * force uri to connect to a given string (e.g. "localhost:4443")
-   * this is to simulate a host that only resolves on the proxy
-   */
-  public void setForceUri(String uri) {
-    forceUri = uri;
+    super(username);
   }
 
   /**
@@ -63,6 +44,7 @@ public class ConnectHttpProxy {
    * @param finishedHandler
    *          will be called when the start has started
    */
+  @Override
   public void start(Vertx vertx, Handler<Void> finishedHandler) {
     HttpServerOptions options = new HttpServerOptions();
     options.setHost("localhost").setPort(13128);
@@ -121,6 +103,7 @@ public class ConnectHttpProxy {
    *
    * Doesn't wait for the close operation to finish
    */
+  @Override
   public void stop() {
     if (server != null) {
       server.close();

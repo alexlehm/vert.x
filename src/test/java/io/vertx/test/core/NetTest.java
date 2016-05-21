@@ -60,6 +60,7 @@ public class NetTest extends VertxTestBase {
 
   private NetServer server;
   private NetClient client;
+  private TestProxyBase proxy;
 
   @Rule
   public TemporaryFolder testFolder = new TemporaryFolder();
@@ -84,6 +85,9 @@ public class NetTest extends VertxTestBase {
     }
     if (server != null) {
       awaitClose(server);
+    }
+    if (proxy != null) {
+      proxy.stop();
     }
     super.tearDown();
   }
@@ -2213,6 +2217,9 @@ public class NetTest extends VertxTestBase {
     await();
   }
 
+  /**
+   * test socks5 proxy for accessing arbitrary server port
+   */
   @Test
   public void testWithSocks5Proxy() {
     server.close();
@@ -2226,7 +2233,7 @@ public class NetTest extends VertxTestBase {
     server.connectHandler(sock -> {
 
     });
-    SocksProxy proxy = new SocksProxy(null);
+    proxy = new SocksProxy(null);
     proxy.start(vertx, v -> {
       server.listen(ar -> {
         assertTrue(ar.succeeded());
@@ -2240,7 +2247,86 @@ public class NetTest extends VertxTestBase {
           vertx.setTimer(100, t -> {
             // make sure we have gone through the proxy
             assertEquals("localhost:1234", proxy.getLastUri());
-            proxy.stop();
+            testComplete();
+          });
+        });
+      });
+    });
+    await();
+  }
+
+  /**
+   * test socks5 proxy for accessing arbitrary server port
+   * with authentication
+   */
+  @Test
+  public void testWithSocks5ProxyAuth() {
+    server.close();
+    NetServerOptions options = new NetServerOptions().setHost("localhost").setPort(1234);
+
+    NetServer server = vertx.createNetServer(options);
+
+    NetClientOptions clientOptions = new NetClientOptions()
+        .setProxyOptions(new ProxyOptions().setProxyType(ProxyType.SOCKS5).setProxyPort(11080)
+            .setProxyUsername("username").setProxyPassword("username"));
+    NetClient client = vertx.createNetClient(clientOptions);
+    server.connectHandler(sock -> {
+
+    });
+    proxy = new SocksProxy("username");
+    proxy.start(vertx, v -> {
+      server.listen(ar -> {
+        assertTrue(ar.succeeded());
+        client.connect(1234, "localhost", ar2 -> {
+          if (ar2.failed()) {
+            log.warn("failed", ar2.cause());
+          }
+          assertTrue(ar2.succeeded());
+          // wait some time to give the proxy protocol a chance to start
+          // TODO: this shouldn't be necessary
+          vertx.setTimer(100, t -> {
+            // make sure we have gone through the proxy
+            assertEquals("localhost:1234", proxy.getLastUri());
+            testComplete();
+          });
+        });
+      });
+    });
+    await();
+  }
+
+  /**
+   * test http connect proxy for accessing a arbitrary server port
+   * note that this may not work with a "real" proxy since there are usually access rules defined
+   * that limit the target host and ports (e.g. connecting to localhost may not be allowed)
+   */
+  @Test
+  public void testWithHttpConnectProxy() {
+    server.close();
+    NetServerOptions options = new NetServerOptions().setHost("localhost").setPort(1234);
+
+    NetServer server = vertx.createNetServer(options);
+
+    NetClientOptions clientOptions = new NetClientOptions()
+        .setProxyOptions(new ProxyOptions().setProxyType(ProxyType.HTTP).setProxyPort(13128));
+    NetClient client = vertx.createNetClient(clientOptions);
+    server.connectHandler(sock -> {
+
+    });
+    proxy = new ConnectHttpProxy(null);
+    proxy.start(vertx, v -> {
+      server.listen(ar -> {
+        assertTrue(ar.succeeded());
+        client.connect(1234, "localhost", ar2 -> {
+          if (ar2.failed()) {
+            log.warn("failed", ar2.cause());
+          }
+          assertTrue(ar2.succeeded());
+          // wait some time to give the proxy protocol a chance to start
+          // TODO: this shouldn't be necessary
+          vertx.setTimer(100, t -> {
+            // make sure we have gone through the proxy
+            assertEquals("localhost:1234", proxy.getLastUri());
             testComplete();
           });
         });
