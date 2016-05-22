@@ -2359,6 +2359,7 @@ public class NetTest extends VertxTestBase {
 
   /**
    * test socks4a proxy for accessing arbitrary server port
+   * using username auth
    */
   @Test
   public void testWithSocks4aProxyAuth() {
@@ -2385,6 +2386,41 @@ public class NetTest extends VertxTestBase {
           assertTrue(ar2.succeeded());
           // make sure we have gone through the proxy
           assertEquals("localhost:1234", proxy.getLastUri());
+          testComplete();
+        });
+      });
+    });
+    await();
+  }
+
+  /**
+   * test socks4a proxy for accessing arbitrary server port
+   * using an already  resolved address
+   */
+  @Test
+  public void testWithSocks4LocalResolver() {
+    server.close();
+    NetServerOptions options = new NetServerOptions().setHost("localhost").setPort(1234);
+
+    NetServer server = vertx.createNetServer(options);
+
+    NetClientOptions clientOptions = new NetClientOptions()
+        .setProxyOptions(new ProxyOptions().setProxyType(ProxyType.SOCKS4).setProxyPort(11080));
+    NetClient client = vertx.createNetClient(clientOptions);
+    server.connectHandler(sock -> {
+
+    });
+    proxy = new Socks4Proxy(null);
+    proxy.start(vertx, v -> {
+      server.listen(ar -> {
+        assertTrue(ar.succeeded());
+        client.connect(1234, "127.0.0.1", ar2 -> {
+          if (ar2.failed()) {
+            log.warn("failed", ar2.cause());
+          }
+          assertTrue(ar2.succeeded());
+          // make sure we have gone through the proxy
+          assertEquals("127.0.0.1:1234", proxy.getLastUri());
           testComplete();
         });
       });

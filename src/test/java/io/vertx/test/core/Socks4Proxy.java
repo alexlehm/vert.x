@@ -66,13 +66,12 @@ public class Socks4Proxy extends TestProxyBase {
 
         String authUsername = getString(buffer.getBuffer(8, buffer.length()));
 
-        if (!authUsername.equals(username)) {
+        if (username != null && !authUsername.equals(username)) {
           log.debug("auth failed");
           log.debug("writing: " + toHex(errorResponse));
           socket.write(errorResponse);
           socket.close();
         } else {
-
           String host;
           if (ip.equals("0.0.0.1")) {
             host = getString(buffer.getBuffer(9+authUsername.length(), buffer.length()));
