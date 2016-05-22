@@ -38,11 +38,8 @@ public class ProxyChannelProvider implements ChannelProvider {
 
   private final ChannelProviderAdditionalOperations addl;
 
-  private Object clientImplClass;
-
-  public ProxyChannelProvider(ChannelProviderAdditionalOperations addl, Object class1) {
+  public ProxyChannelProvider(ChannelProviderAdditionalOperations addl) {
     this.addl = addl;
-    this.clientImplClass = class1;
   }
 
   @Override
@@ -97,11 +94,9 @@ public class ProxyChannelProvider implements ChannelProvider {
                   pipeline.remove(proxy);
                   addl.pipelineDeprov(pipeline);
                   pipeline.remove(this);
-                  if (clientImplClass instanceof NetClientImpl) {
-                    log.warn("didn't expect proxy user event");
-                  }
                   callHandler(channelHandler, Future.succeededFuture(ch));
                 }
+                ctx.fireUserEventTriggered(evt);
               }
             });
           }
@@ -109,13 +104,7 @@ public class ProxyChannelProvider implements ChannelProvider {
         ChannelFuture future = bootstrap.connect(t);
 
         future.addListener(res -> {
-          if (res.isSuccess()) {
-            if (!(clientImplClass instanceof NetClientImpl)) {
-              log.info("handle succeeded skipped (expecting ProxyUserEvent) ");
-            } else {
-              callHandler(channelHandler, Future.succeededFuture(future.channel()));
-            }
-          } else {
+          if (!res.isSuccess()) {
             callHandler(channelHandler, Future.failedFuture(res.cause()));
           }
         });

@@ -2242,13 +2242,9 @@ public class NetTest extends VertxTestBase {
             log.warn("failed", ar2.cause());
           }
           assertTrue(ar2.succeeded());
-          // wait some time to give the proxy protocol a chance to start
-          // TODO: this shouldn't be necessary
-          vertx.setTimer(100, t -> {
-            // make sure we have gone through the proxy
-            assertEquals("localhost:1234", proxy.getLastUri());
-            testComplete();
-          });
+          // make sure we have gone through the proxy
+          assertEquals("localhost:1234", proxy.getLastUri());
+          testComplete();
         });
       });
     });
@@ -2282,13 +2278,9 @@ public class NetTest extends VertxTestBase {
             log.warn("failed", ar2.cause());
           }
           assertTrue(ar2.succeeded());
-          // wait some time to give the proxy protocol a chance to start
-          // TODO: this shouldn't be necessary
-          vertx.setTimer(100, t -> {
-            // make sure we have gone through the proxy
-            assertEquals("localhost:1234", proxy.getLastUri());
-            testComplete();
-          });
+          // make sure we have gone through the proxy
+          assertEquals("localhost:1234", proxy.getLastUri());
+          testComplete();
         });
       });
     });
@@ -2322,13 +2314,9 @@ public class NetTest extends VertxTestBase {
             log.warn("failed", ar2.cause());
           }
           assertTrue(ar2.succeeded());
-          // wait some time to give the proxy protocol a chance to start
-          // TODO: this shouldn't be necessary
-          vertx.setTimer(100, t -> {
-            // make sure we have gone through the proxy
-            assertEquals("localhost:1234", proxy.getLastUri());
-            testComplete();
-          });
+          // make sure we have gone through the proxy
+          assertEquals("localhost:1234", proxy.getLastUri());
+          testComplete();
         });
       });
     });

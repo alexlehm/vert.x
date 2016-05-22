@@ -39,6 +39,8 @@ public class SocksProxy extends TestProxyBase {
   private static final Buffer authSuccess = Buffer.buffer(new byte[] { 1, 0 });
   private static final Buffer authFailed = Buffer.buffer(new byte[] { 1, 1 });
 
+  private static final int PORT = 11080;
+
   private NetServer server;
   public SocksProxy(String username) {
     super(username);
@@ -55,7 +57,7 @@ public class SocksProxy extends TestProxyBase {
   @Override
   public void start(Vertx vertx, Handler<Void> finishedHandler) {
     NetServerOptions options = new NetServerOptions();
-    options.setHost("localhost").setPort(11080);
+    options.setHost("localhost").setPort(PORT);
     server = vertx.createNetServer(options);
     server.connectHandler(socket -> {
       socket.handler(buffer -> {
@@ -166,5 +168,10 @@ public class SocksProxy extends TestProxyBase {
       server.close();
       server = null;
     }
+  }
+
+  @Override
+  public int getPort() {
+    return PORT;
   }
 }

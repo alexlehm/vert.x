@@ -37,6 +37,8 @@ public abstract class TestProxyBase {
     forceUri = uri;
   }
 
+  public abstract int getPort();
+  
   public abstract void start(Vertx vertx, Handler<Void> finishedHandler);
   public abstract void stop();
 

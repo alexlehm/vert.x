@@ -308,7 +308,7 @@ public class ConnectionManager {
           }
         };
       } else {
-        channelProvider = new ProxyChannelProvider(addl, this);
+        channelProvider = new ProxyChannelProvider(addl);
       }
 
       Handler<AsyncResult<Channel>> channelHandler = res -> {

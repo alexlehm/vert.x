@@ -28,6 +28,11 @@ import io.vertx.core.streams.Pump;
  */
 public class ConnectHttpProxy extends TestProxyBase {
 
+  /**
+   * 
+   */
+  private static final int PORT = 13128;
+
   private static final Logger log = LoggerFactory.getLogger(ConnectHttpProxy.class);
 
   private HttpServer server;
@@ -47,7 +52,7 @@ public class ConnectHttpProxy extends TestProxyBase {
   @Override
   public void start(Vertx vertx, Handler<Void> finishedHandler) {
     HttpServerOptions options = new HttpServerOptions();
-    options.setHost("localhost").setPort(13128);
+    options.setHost("localhost").setPort(PORT);
     server = vertx.createHttpServer(options);
     server.requestHandler(request -> {
       HttpMethod method = request.method();
@@ -109,5 +114,10 @@ public class ConnectHttpProxy extends TestProxyBase {
       server.close();
       server = null;
     }
+  }
+
+  @Override
+  public int getPort() {
+    return PORT;
   }
 }

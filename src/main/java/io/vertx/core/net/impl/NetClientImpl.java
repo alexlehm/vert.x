@@ -211,7 +211,7 @@ public class NetClientImpl implements NetClient, MetricsProvider {
       };
     } else {
       log.info("proxychannelprovider");
-      channelProvider = new ProxyChannelProvider(addl, this);
+      channelProvider = new ProxyChannelProvider(addl);
     }
 
     Handler<AsyncResult<Channel>> channelHandler = res -> {
