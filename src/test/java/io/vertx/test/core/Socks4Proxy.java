@@ -24,25 +24,20 @@ import io.vertx.core.streams.Pump;
  *
  * @author <a href="http://oss.lehmann.cx/">Alexander Lehmann</a>
  */
-public class SocksProxy extends TestProxyBase {
+public class Socks4Proxy extends TestProxyBase {
 
-  private static final Logger log = LoggerFactory.getLogger(SocksProxy.class);
+  private static final Logger log = LoggerFactory.getLogger(Socks4Proxy.class);
 
-  private static final Buffer clientInit = Buffer.buffer(new byte[] { 5, 1, 0 });
-  private static final Buffer serverReply = Buffer.buffer(new byte[] { 5, 0 });
-  private static final Buffer clientRequest = Buffer.buffer(new byte[] { 5, 1, 0, 3 });
-  private static final Buffer connectResponse = Buffer.buffer(new byte[] { 5, 0, 0, 1, 0x7f, 0, 0, 1, 0x27, 0x10 });
-  private static final Buffer errorResponse = Buffer.buffer(new byte[] { 5, 4, 0, 1, 0, 0, 0, 0, 0, 0 });
-
-  private static final Buffer clientInitAuth = Buffer.buffer(new byte[] { 5, 2, 0, 2 });
-  private static final Buffer serverReplyAuth = Buffer.buffer(new byte[] { 5, 2 });
-  private static final Buffer authSuccess = Buffer.buffer(new byte[] { 1, 0 });
-  private static final Buffer authFailed = Buffer.buffer(new byte[] { 1, 1 });
+  //  private static final Buffer clientInit = Buffer.buffer(new byte[] { 5, 1, 0 });
+  //  private static final Buffer serverReply = Buffer.buffer(new byte[] { 5, 0 });
+  private static final Buffer clientRequest = Buffer.buffer(new byte[] { 4, 1 });
+  private static final Buffer connectResponse = Buffer.buffer(new byte[] { 0, 90, 0, 0, 0, 0, 0, 0 });
+  private static final Buffer errorResponse = Buffer.buffer(new byte[] { 0, 91, 0, 0, 0, 0, 0, 0 });
 
   private static final int PORT = 11080;
 
   private NetServer server;
-  public SocksProxy(String username) {
+  public Socks4Proxy(String username) {
     super(username);
   }
 
@@ -61,25 +56,30 @@ public class SocksProxy extends TestProxyBase {
     server = vertx.createNetServer(options);
     server.connectHandler(socket -> {
       socket.handler(buffer -> {
-        Buffer expectedInit = username == null ? clientInit : clientInitAuth;
-        if (!buffer.equals(expectedInit)) {
-          throw new IllegalStateException("expected "+toHex(expectedInit)+", got "+toHex(buffer));
+        if (!buffer.getBuffer(0, clientRequest.length()).equals(clientRequest)) {
+          throw new IllegalStateException("expected "+toHex(clientRequest)+", got "+toHex(buffer));
         }
-        boolean useAuth = buffer.equals(clientInitAuth);
         log.debug("got request: "+toHex(buffer));
 
-        final Handler<Buffer> handler = buffer2 -> {
-          if(!buffer2.getBuffer(0, clientRequest.length()).equals(clientRequest)) {
-            throw new IllegalStateException("expected "+toHex(clientRequest)+", got "+toHex(buffer2));
+        int port = buffer.getUnsignedShort(2);
+        String ip = getByte4(buffer.getBuffer(4, 8));
+
+        String authUsername = getString(buffer.getBuffer(8, buffer.length()));
+
+        if (!authUsername.equals(username)) {
+          log.debug("auth failed");
+          log.debug("writing: " + toHex(errorResponse));
+          socket.write(errorResponse);
+          socket.close();
+        } else {
+
+          String host;
+          if (ip.equals("0.0.0.1")) {
+            host = getString(buffer.getBuffer(9+authUsername.length(), buffer.length()));
+          } else {
+            host = ip;
           }
-          int stringLen = buffer2.getUnsignedByte(4);
-          log.debug("string len "+stringLen);
-          if (buffer2.length()!=7+stringLen) {
-            throw new IllegalStateException("format error in client request, got "+toHex(buffer2));
-          }
-          String host = buffer2.getString(5, 5+stringLen);
-          int port = buffer2.getUnsignedShort(5+stringLen);
-          log.debug("got request: "+toHex(buffer2));
+
           log.debug("connect: "+host+":"+port);
           socket.handler(null);
           lastUri = host+":"+port;
@@ -108,41 +108,30 @@ public class SocksProxy extends TestProxyBase {
               socket.close();
             }
           });
-        };
-
-        if (useAuth) {
-          socket.handler(buffer3 -> {
-            log.debug("auth handler");
-            log.debug("got request: "+toHex(buffer3));
-            Buffer authReply = Buffer.buffer(new byte[] { 1, (byte)username.length() });
-            authReply.appendString(username);
-            authReply.appendByte((byte)username.length());
-            authReply.appendString(username);
-            if (!buffer3.equals(authReply)) {
-              log.debug("expected "+toHex(authReply)+", got "+toHex(buffer3));
-              socket.handler(null);
-              log.debug("writing: "+toHex(authFailed));
-              socket.write(authFailed);
-              socket.close();
-            } else {
-              socket.handler(handler);
-              log.debug("writing: "+toHex(authSuccess));
-              socket.write(authSuccess);
-            }
-          });
-          log.debug("writing: "+toHex(serverReplyAuth));
-          socket.write(serverReplyAuth);
-        } else {
-          socket.handler(handler);
-          log.debug("writing: "+toHex(serverReply));
-          socket.write(serverReply);
         }
       });
     });
     server.listen(result -> {
-      log.debug("socks5 server started");
+      log.debug("socks4a server started");
       finishedHandler.handle(null);
     });
+  }
+
+  /**
+   * @param buffer
+   * @return
+   */
+  private String getString(Buffer buffer) {
+    String string = buffer.toString();
+    return string.substring(0, string.indexOf('\0'));
+  }
+
+  /**
+   * @param buffer
+   * @return
+   */
+  private String getByte4(Buffer buffer) {
+    return String.format("%d.%d.%d.%d", buffer.getByte(0), buffer.getByte(1), buffer.getByte(2), buffer.getByte(3));
   }
 
   /**

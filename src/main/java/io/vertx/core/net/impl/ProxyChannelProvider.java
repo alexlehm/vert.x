@@ -61,15 +61,15 @@ public class ProxyChannelProvider implements ChannelProvider {
         switch (proxyType) {
           default:
           case HTTP:
-            log.info("configuring http connect proxy");
+            log.debug("configuring http connect proxy");
             proxy = proxyUsername != null && proxyPassword != null ? new HttpProxyHandler(proxyAddr, proxyUsername, proxyPassword) : new HttpProxyHandler(proxyAddr);
             break;
           case SOCKS5:
-            log.info("configuring socks5 proxy");
+            log.debug("configuring socks5 proxy");
             proxy = proxyUsername != null && proxyPassword != null ? new Socks5ProxyHandler(proxyAddr, proxyUsername, proxyPassword) : new Socks5ProxyHandler(proxyAddr);
             break;
           case SOCKS4:
-            log.info("configuring socks4 proxy");
+            log.debug("configuring socks4 proxy");
             // apparently SOCKS4 only supports a username?
             proxy = proxyUsername != null ? new Socks4ProxyHandler(proxyAddr, proxyUsername) : new Socks4ProxyHandler(proxyAddr);
             break;
@@ -94,7 +94,7 @@ public class ProxyChannelProvider implements ChannelProvider {
                   pipeline.remove(proxy);
                   addl.pipelineDeprov(pipeline);
                   pipeline.remove(this);
-                  callHandler(channelHandler, Future.succeededFuture(ch));
+                  channelHandler.handle(Future.succeededFuture(ch));
                 }
                 ctx.fireUserEventTriggered(evt);
               }
@@ -105,22 +105,12 @@ public class ProxyChannelProvider implements ChannelProvider {
 
         future.addListener(res -> {
           if (!res.isSuccess()) {
-            callHandler(channelHandler, Future.failedFuture(res.cause()));
+            channelHandler.handle(Future.failedFuture(res.cause()));
           }
         });
       } else {
-        callHandler(channelHandler, Future.failedFuture(dnsRes.cause()));
+        channelHandler.handle(Future.failedFuture(dnsRes.cause()));
       }
     });
-  }
-
-  /**
-   * @param channelHandler
-   * @param future
-   */
-  private void callHandler(Handler<AsyncResult<Channel>> channelHandler, Future<Channel> future) {
-    String type = future.succeeded() ? "succeeded" : "failed";
-    log.info("calling channelHandler with "+type+" future "+future.toString());
-    channelHandler.handle(future);
   }
 }
