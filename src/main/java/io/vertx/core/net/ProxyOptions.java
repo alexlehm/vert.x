@@ -35,7 +35,7 @@ public class ProxyOptions implements Cloneable {
   private ProxyType proxyType;
 
   /**
-   * Default constructor
+   * Default constructor.
    */
   public ProxyOptions() {
     proxyHost = "localhost";
@@ -46,7 +46,7 @@ public class ProxyOptions implements Cloneable {
   }
 
   /**
-   * Copy constructor
+   * Copy constructor.
    *
    * @param other  the options to copy
    */
@@ -59,7 +59,7 @@ public class ProxyOptions implements Cloneable {
   }
 
   /**
-   * Create options from JSON
+   * Create options from JSON.
    *
    * @param json  the JSON
    */
@@ -69,14 +69,16 @@ public class ProxyOptions implements Cloneable {
   }
 
   /**
-   * @return  proxy host
+   * Get proxy host.
+   *
+   * @return  proxy hosts
    */
   public String getProxyHost() {
     return proxyHost;
   }
 
   /**
-   * Set proxy host
+   * Set proxy host.
    *
    * @param proxyHost the proxy host to connect to
    * @return a reference to this, so the API can be used fluently
@@ -87,16 +89,18 @@ public class ProxyOptions implements Cloneable {
   }
 
   /**
-   * @return  proxy host
+   * Get proxy port.
+   *
+   * @return  proxy port
    */
   public int getProxyPort() {
     return proxyPort;
   }
 
   /**
-   * Set proxy host
+   * Set proxy port.
    *
-   * @param proxyHost the proxy host to connect to
+   * @param proxyPort the proxy port to connect to
    * @return a reference to this, so the API can be used fluently
    */
   public ProxyOptions setProxyPort(int proxyPort) {
@@ -105,16 +109,18 @@ public class ProxyOptions implements Cloneable {
   }
 
   /**
-   * @return  proxy host
+   * Get proxy username.
+   *
+   * @return  proxy username
    */
   public String getProxyUsername() {
     return proxyUsername;
   }
 
   /**
-   * Set proxy host
+   * Set proxy username.
    *
-   * @param proxyHost the proxy host to connect to
+   * @param proxyUsername the proxy username
    * @return a reference to this, so the API can be used fluently
    */
   public ProxyOptions setProxyUsername(String proxyUsername) {
@@ -123,16 +129,18 @@ public class ProxyOptions implements Cloneable {
   }
 
   /**
-   * @return  proxy host
+   * Get proxy password.
+   *
+   * @return  proxy password
    */
   public String getProxyPassword() {
     return proxyPassword;
   }
 
   /**
-   * Set proxy host
+   * Set proxy password.
    *
-   * @param proxyHost the proxy host to connect to
+   * @param proxyPassword the proxy password
    * @return a reference to this, so the API can be used fluently
    */
   public ProxyOptions setProxyPassword(String proxyPassword) {
@@ -141,16 +149,22 @@ public class ProxyOptions implements Cloneable {
   }
 
   /**
-   * @return  proxy host
+   * Get proxy type.
+   *
+   *<p>ProxyType can be HTTP, SOCKS4 and SOCKS5
+   *
+   * @return  proxy type
    */
   public ProxyType getProxyType() {
     return proxyType;
   }
 
   /**
-   * Set proxy host
+   * Set proxy type.
    *
-   * @param proxyHost the proxy host to connect to
+   * <p>ProxyType can be HTTP, SOCKS4 and SOCKS5
+   *
+   * @param proxyType the proxy type to connect to
    * @return a reference to this, so the API can be used fluently
    */
   public ProxyOptions setProxyType(ProxyType proxyType) {

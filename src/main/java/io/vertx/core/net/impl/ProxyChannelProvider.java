@@ -62,21 +62,24 @@ public class ProxyChannelProvider implements ChannelProvider {
           default:
           case HTTP:
             log.debug("configuring http connect proxy");
-            proxy = proxyUsername != null && proxyPassword != null ? new HttpProxyHandler(proxyAddr, proxyUsername, proxyPassword) : new HttpProxyHandler(proxyAddr);
+            proxy = proxyUsername != null && proxyPassword != null
+                ? new HttpProxyHandler(proxyAddr, proxyUsername, proxyPassword) : new HttpProxyHandler(proxyAddr);
             break;
           case SOCKS5:
             log.debug("configuring socks5 proxy");
-            proxy = proxyUsername != null && proxyPassword != null ? new Socks5ProxyHandler(proxyAddr, proxyUsername, proxyPassword) : new Socks5ProxyHandler(proxyAddr);
+            proxy = proxyUsername != null && proxyPassword != null
+                ? new Socks5ProxyHandler(proxyAddr, proxyUsername, proxyPassword) : new Socks5ProxyHandler(proxyAddr);
             break;
           case SOCKS4:
             log.debug("configuring socks4 proxy");
             // apparently SOCKS4 only supports a username?
-            proxy = proxyUsername != null ? new Socks4ProxyHandler(proxyAddr, proxyUsername) : new Socks4ProxyHandler(proxyAddr);
+            proxy = proxyUsername != null ? new Socks4ProxyHandler(proxyAddr, proxyUsername)
+                : new Socks4ProxyHandler(proxyAddr);
             break;
         }
 
         bootstrap.resolver(NoopAddressResolverGroup.INSTANCE);
-        InetSocketAddress t = InetSocketAddress.createUnresolved(host, port);
+        InetSocketAddress targetAddress = InetSocketAddress.createUnresolved(host, port);
 
         bootstrap.handler(new ChannelInitializer<Channel>() {
           @Override
@@ -89,7 +92,7 @@ public class ProxyChannelProvider implements ChannelProvider {
             pipeline.addLast(new ChannelInboundHandlerAdapter() {
               @Override
               public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-                log.info("userEventTriggered "+evt.toString());
+                log.info("userEventTriggered " + evt.toString());
                 if (evt instanceof ProxyConnectionEvent) {
                   pipeline.remove(proxy);
                   addl.pipelineDeprov(pipeline);
@@ -101,7 +104,7 @@ public class ProxyChannelProvider implements ChannelProvider {
             });
           }
         });
-        ChannelFuture future = bootstrap.connect(t);
+        ChannelFuture future = bootstrap.connect(targetAddress);
 
         future.addListener(res -> {
           if (!res.isSuccess()) {

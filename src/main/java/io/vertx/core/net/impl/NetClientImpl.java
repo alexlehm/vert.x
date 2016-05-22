@@ -198,7 +198,8 @@ public class NetClientImpl implements NetClient, MetricsProvider {
     if (options.getProxyOptions() == null) {
       channelProvider = new ChannelProvider() {
         @Override
-        public void connect(VertxInternal vertx, Bootstrap bootstrap, ProxyOptions options, String host, int port, Handler<AsyncResult<Channel>> channelHandler) {
+        public void connect(VertxInternal vertx, Bootstrap bootstrap, ProxyOptions options, String host, int port,
+            Handler<AsyncResult<Channel>> channelHandler) {
           AsyncResolveBindConnectHelper future = AsyncResolveBindConnectHelper.doConnect(vertx, port, host, bootstrap);
           future.addListener(res -> {
             if (res.succeeded()) {
@@ -240,9 +241,8 @@ public class NetClientImpl implements NetClient, MetricsProvider {
             log.debug("Failed to create connection. Will retry in " + options.getReconnectInterval() + " milliseconds");
             //Set a timer to retry connection
             vertx.setTimer(options.getReconnectInterval(), tid ->
-            connect(port, host, connectHandler, remainingAttempts == -1 ? remainingAttempts : remainingAttempts
-                - 1)
-                );
+                connect(port, host, connectHandler, remainingAttempts == -1 ? remainingAttempts : remainingAttempts - 1)
+            );
           });
         } else {
           failed(context, null, res.cause(), connectHandler);
@@ -266,15 +266,15 @@ public class NetClientImpl implements NetClient, MetricsProvider {
     });
   }
 
-  private void failed(ContextImpl context, Channel ch, Throwable t, Handler<AsyncResult<NetSocket>> connectHandler) {
+  private void failed(ContextImpl context, Channel ch, Throwable th, Handler<AsyncResult<NetSocket>> connectHandler) {
     if (ch != null) {
       ch.close();
     }
-    context.executeFromIO(() -> doFailed(connectHandler, t));
+    context.executeFromIO(() -> doFailed(connectHandler, th));
   }
 
-  private static void doFailed(Handler<AsyncResult<NetSocket>> connectHandler, Throwable t) {
-    connectHandler.handle(Future.failedFuture(t));
+  private static void doFailed(Handler<AsyncResult<NetSocket>> connectHandler, Throwable th) {
+    connectHandler.handle(Future.failedFuture(th));
   }
 
   @Override

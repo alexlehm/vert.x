@@ -14,10 +14,10 @@ import io.vertx.core.streams.Pump;
 
 /**
  * Http Connect Proxy
- * <p>
- * A simple Http CONNECT proxy for testing https proxy functionality. HTTP server running on localhost allowing CONNECT
- * requests only. This is basically a socket forwarding protocol allowing to use the proxy server to connect to the
- * internet.
+ *
+ * <p>A simple Http CONNECT proxy for testing https proxy functionality. HTTP server running on localhost allowing
+ * CONNECT requests only. This is basically a socket forwarding protocol allowing to use the proxy server to connect to
+ * the internet.
  * <p>
  * Usually the server will be started in @Before and stopped in @After for a unit test using HttpClient with the
  * setProxyXXX methods.
@@ -37,6 +37,7 @@ public class Socks4Proxy extends TestProxyBase {
   private static final int PORT = 11080;
 
   private NetServer server;
+
   public Socks4Proxy(String username) {
     super(username);
   }
@@ -57,9 +58,9 @@ public class Socks4Proxy extends TestProxyBase {
     server.connectHandler(socket -> {
       socket.handler(buffer -> {
         if (!buffer.getBuffer(0, clientRequest.length()).equals(clientRequest)) {
-          throw new IllegalStateException("expected "+toHex(clientRequest)+", got "+toHex(buffer));
+          throw new IllegalStateException("expected " + toHex(clientRequest) + ", got " + toHex(buffer));
         }
-        log.debug("got request: "+toHex(buffer));
+        log.debug("got request: " + toHex(buffer));
 
         int port = buffer.getUnsignedShort(2);
         String ip = getByte4(buffer.getBuffer(4, 8));
@@ -74,18 +75,18 @@ public class Socks4Proxy extends TestProxyBase {
         } else {
           String host;
           if (ip.equals("0.0.0.1")) {
-            host = getString(buffer.getBuffer(9+authUsername.length(), buffer.length()));
+            host = getString(buffer.getBuffer(9 + authUsername.length(), buffer.length()));
           } else {
             host = ip;
           }
 
-          log.debug("connect: "+host+":"+port);
+          log.debug("connect: " + host + ":" + port);
           socket.handler(null);
-          lastUri = host+":"+port;
+          lastUri = host + ":" + port;
 
           if (forceUri != null) {
             host = forceUri.substring(0, forceUri.indexOf(':'));
-            port = Integer.valueOf(forceUri.substring(forceUri.indexOf(':')+1));
+            port = Integer.valueOf(forceUri.substring(forceUri.indexOf(':') + 1));
           }
           log.debug("connecting to " + host + ":" + port);
           NetClient netClient = vertx.createNetClient(new NetClientOptions());
@@ -116,27 +117,15 @@ public class Socks4Proxy extends TestProxyBase {
     });
   }
 
-  /**
-   * @param buffer
-   * @return
-   */
   private String getString(Buffer buffer) {
     String string = buffer.toString();
     return string.substring(0, string.indexOf('\0'));
   }
 
-  /**
-   * @param buffer
-   * @return
-   */
   private String getByte4(Buffer buffer) {
     return String.format("%d.%d.%d.%d", buffer.getByte(0), buffer.getByte(1), buffer.getByte(2), buffer.getByte(3));
   }
 
-  /**
-   * @param buffer
-   * @return
-   */
   private String toHex(Buffer buffer) {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < buffer.length(); i++) {
@@ -148,7 +137,7 @@ public class Socks4Proxy extends TestProxyBase {
   /**
    * Stop the server.
    *
-   * Doesn't wait for the close operation to finish
+   * <p>Doesn't wait for the close operation to finish
    */
   @Override
   public void stop() {

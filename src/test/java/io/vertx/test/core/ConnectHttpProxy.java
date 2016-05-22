@@ -16,10 +16,12 @@ import io.vertx.core.streams.Pump;
 
 /**
  * Http Connect Proxy
+ *
  * <p>
  * A simple Http CONNECT proxy for testing https proxy functionality. HTTP server running on localhost allowing CONNECT
  * requests only. This is basically a socket forwarding protocol allowing to use the proxy server to connect to the
  * internet.
+ *
  * <p>
  * Usually the server will be started in @Before and stopped in @After for a unit test using HttpClient with the
  * setProxyXXX methods.
@@ -28,9 +30,6 @@ import io.vertx.core.streams.Pump;
  */
 public class ConnectHttpProxy extends TestProxyBase {
 
-  /**
-   * 
-   */
   private static final int PORT = 13128;
 
   private static final Logger log = LoggerFactory.getLogger(ConnectHttpProxy.class);
@@ -72,7 +71,7 @@ public class ConnectHttpProxy extends TestProxyBase {
         if (forceUri != null) {
           uri = forceUri;
         }
-        String split[] = uri.split(":");
+        String[] split = uri.split(":");
         String host = split[0];
         int port;
         try {
@@ -105,7 +104,7 @@ public class ConnectHttpProxy extends TestProxyBase {
 
   /**
    * Stop the server.
-   *
+   * <p>
    * Doesn't wait for the close operation to finish
    */
   @Override

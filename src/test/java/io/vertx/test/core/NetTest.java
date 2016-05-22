@@ -2218,7 +2218,7 @@ public class NetTest extends VertxTestBase {
   }
 
   /**
-   * test socks5 proxy for accessing arbitrary server port
+   * test socks5 proxy for accessing arbitrary server port.
    */
   @Test
   public void testWithSocks5Proxy() {
@@ -2252,8 +2252,7 @@ public class NetTest extends VertxTestBase {
   }
 
   /**
-   * test socks5 proxy for accessing arbitrary server port
-   * with authentication
+   * test socks5 proxy for accessing arbitrary server port with authentication.
    */
   @Test
   public void testWithSocks5ProxyAuth() {
@@ -2324,7 +2323,7 @@ public class NetTest extends VertxTestBase {
   }
 
   /**
-   * test socks4a proxy for accessing arbitrary server port
+   * test socks4a proxy for accessing arbitrary server port.
    */
   @Test
   public void testWithSocks4aProxy() {
@@ -2358,8 +2357,7 @@ public class NetTest extends VertxTestBase {
   }
 
   /**
-   * test socks4a proxy for accessing arbitrary server port
-   * using username auth
+   * test socks4a proxy for accessing arbitrary server port using username auth.
    */
   @Test
   public void testWithSocks4aProxyAuth() {
@@ -2394,8 +2392,7 @@ public class NetTest extends VertxTestBase {
   }
 
   /**
-   * test socks4a proxy for accessing arbitrary server port
-   * using an already  resolved address
+   * test socks4a proxy for accessing arbitrary server port using an already resolved address.
    */
   @Test
   public void testWithSocks4LocalResolver() {

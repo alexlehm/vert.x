@@ -16,8 +16,9 @@ import io.vertx.core.streams.Pump;
  * Http Connect Proxy
  * <p>
  * A simple Http CONNECT proxy for testing https proxy functionality. HTTP server running on localhost allowing CONNECT
- * requests only. This is basically a socket forwarding protocol allowing to use the proxy server to connect to the
+ * * requests only. This is basically a socket forwarding protocol allowing to use the proxy server to connect to the
  * internet.
+ *
  * <p>
  * Usually the server will be started in @Before and stopped in @After for a unit test using HttpClient with the
  * setProxyXXX methods.
@@ -42,6 +43,7 @@ public class SocksProxy extends TestProxyBase {
   private static final int PORT = 11080;
 
   private NetServer server;
+
   public SocksProxy(String username) {
     super(username);
   }
@@ -63,30 +65,30 @@ public class SocksProxy extends TestProxyBase {
       socket.handler(buffer -> {
         Buffer expectedInit = username == null ? clientInit : clientInitAuth;
         if (!buffer.equals(expectedInit)) {
-          throw new IllegalStateException("expected "+toHex(expectedInit)+", got "+toHex(buffer));
+          throw new IllegalStateException("expected " + toHex(expectedInit) + ", got " + toHex(buffer));
         }
         boolean useAuth = buffer.equals(clientInitAuth);
-        log.debug("got request: "+toHex(buffer));
+        log.debug("got request: " + toHex(buffer));
 
         final Handler<Buffer> handler = buffer2 -> {
-          if(!buffer2.getBuffer(0, clientRequest.length()).equals(clientRequest)) {
-            throw new IllegalStateException("expected "+toHex(clientRequest)+", got "+toHex(buffer2));
+          if (!buffer2.getBuffer(0, clientRequest.length()).equals(clientRequest)) {
+            throw new IllegalStateException("expected " + toHex(clientRequest) + ", got " + toHex(buffer2));
           }
           int stringLen = buffer2.getUnsignedByte(4);
-          log.debug("string len "+stringLen);
-          if (buffer2.length()!=7+stringLen) {
-            throw new IllegalStateException("format error in client request, got "+toHex(buffer2));
+          log.debug("string len " + stringLen);
+          if (buffer2.length() != 7 + stringLen) {
+            throw new IllegalStateException("format error in client request, got " + toHex(buffer2));
           }
-          String host = buffer2.getString(5, 5+stringLen);
-          int port = buffer2.getUnsignedShort(5+stringLen);
-          log.debug("got request: "+toHex(buffer2));
-          log.debug("connect: "+host+":"+port);
+          String host = buffer2.getString(5, 5 + stringLen);
+          int port = buffer2.getUnsignedShort(5 + stringLen);
+          log.debug("got request: " + toHex(buffer2));
+          log.debug("connect: " + host + ":" + port);
           socket.handler(null);
-          lastUri = host+":"+port;
+          lastUri = host + ":" + port;
 
           if (forceUri != null) {
             host = forceUri.substring(0, forceUri.indexOf(':'));
-            port = Integer.valueOf(forceUri.substring(forceUri.indexOf(':')+1));
+            port = Integer.valueOf(forceUri.substring(forceUri.indexOf(':') + 1));
           }
           log.debug("connecting to " + host + ":" + port);
           NetClient netClient = vertx.createNetClient(new NetClientOptions());
@@ -113,28 +115,28 @@ public class SocksProxy extends TestProxyBase {
         if (useAuth) {
           socket.handler(buffer3 -> {
             log.debug("auth handler");
-            log.debug("got request: "+toHex(buffer3));
-            Buffer authReply = Buffer.buffer(new byte[] { 1, (byte)username.length() });
+            log.debug("got request: " + toHex(buffer3));
+            Buffer authReply = Buffer.buffer(new byte[] { 1, (byte) username.length() });
             authReply.appendString(username);
-            authReply.appendByte((byte)username.length());
+            authReply.appendByte((byte) username.length());
             authReply.appendString(username);
             if (!buffer3.equals(authReply)) {
-              log.debug("expected "+toHex(authReply)+", got "+toHex(buffer3));
+              log.debug("expected " + toHex(authReply) + ", got " + toHex(buffer3));
               socket.handler(null);
-              log.debug("writing: "+toHex(authFailed));
+              log.debug("writing: " + toHex(authFailed));
               socket.write(authFailed);
               socket.close();
             } else {
               socket.handler(handler);
-              log.debug("writing: "+toHex(authSuccess));
+              log.debug("writing: " + toHex(authSuccess));
               socket.write(authSuccess);
             }
           });
-          log.debug("writing: "+toHex(serverReplyAuth));
+          log.debug("writing: " + toHex(serverReplyAuth));
           socket.write(serverReplyAuth);
         } else {
           socket.handler(handler);
-          log.debug("writing: "+toHex(serverReply));
+          log.debug("writing: " + toHex(serverReply));
           socket.write(serverReply);
         }
       });
@@ -145,10 +147,6 @@ public class SocksProxy extends TestProxyBase {
     });
   }
 
-  /**
-   * @param buffer
-   * @return
-   */
   private String toHex(Buffer buffer) {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < buffer.length(); i++) {
@@ -160,7 +158,7 @@ public class SocksProxy extends TestProxyBase {
   /**
    * Stop the server.
    *
-   * Doesn't wait for the close operation to finish
+   * <p>Doesn't wait for the close operation to finish
    */
   @Override
   public void stop() {
