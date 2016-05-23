@@ -94,7 +94,6 @@ public class ProxyChannelProvider implements ChannelProvider {
             pipeline.addLast(new ChannelInboundHandlerAdapter() {
               @Override
               public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-                log.info("userEventTriggered " + evt.toString());
                 if (evt instanceof ProxyConnectionEvent) {
                   pipeline.remove(proxy);
                   addl.pipelineDeprov(pipeline);

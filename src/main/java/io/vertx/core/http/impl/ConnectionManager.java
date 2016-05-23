@@ -336,7 +336,6 @@ public class ConnectionManager {
             });
           } else {
             if (options.isSsl()) {
-              log.info("adding ssl handler");
               pipeline.addLast("ssl", sslHelper.createSslHandler(vertx, host, port));
             }
             if (version == HttpVersion.HTTP_2) {
