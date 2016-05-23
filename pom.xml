@@ -68,6 +68,7 @@
     <jetty.alpnAgent.path>${settings.localRepository}/org/mortbay/jetty/alpn/jetty-alpn-agent/${jetty.alpnAgent.version}/jetty-alpn-agent-${jetty.alpnAgent.version}.jar</jetty.alpnAgent.path>
     <tcnative.classifier>${os.detected.classifier}</tcnative.classifier>
 
+    <os.detected.classifier>windows-x86_64</os.detected.classifier>
   </properties>
 
   <dependencyManagement>

@@ -1581,23 +1581,25 @@ Set the store as a buffer
 ^|Name | Type ^| Description
 |[[proxyHost]]`proxyHost`|`String`|
 +++
-Set proxy host
+Set proxy host.
 +++
 |[[proxyPassword]]`proxyPassword`|`String`|
 +++
-Set proxy host
+Set proxy password.
 +++
 |[[proxyPort]]`proxyPort`|`Number (int)`|
 +++
-Set proxy host
+Set proxy port.
 +++
 |[[proxyType]]`proxyType`|`link:enums.html#ProxyType[ProxyType]`|
 +++
-Set proxy host
+Set proxy type.
+
+ <p>ProxyType can be HTTP, SOCKS4 and SOCKS5
 +++
 |[[proxyUsername]]`proxyUsername`|`String`|
 +++
-Set proxy host
+Set proxy username.
 +++
 |===
 
