@@ -7,6 +7,9 @@ import io.vertx.core.Handler;
 import io.vertx.core.impl.VertxInternal;
 import io.vertx.core.net.ProxyOptions;
 
+/**
+ * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
+ */
 public interface ChannelProvider {
 
   void connect(VertxInternal vertx,

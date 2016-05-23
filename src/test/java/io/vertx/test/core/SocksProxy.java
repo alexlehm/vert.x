@@ -13,15 +13,14 @@ import io.vertx.core.net.NetSocket;
 import io.vertx.core.streams.Pump;
 
 /**
- * Http Connect Proxy
+ * SOCKS5 Proxy
  * <p>
- * A simple Http CONNECT proxy for testing https proxy functionality. HTTP server running on localhost allowing CONNECT
- * * requests only. This is basically a socket forwarding protocol allowing to use the proxy server to connect to the
- * internet.
+ * A simple SOCKS5 proxy for testing SOCKS functionality. Currently we only support tcp connect and
+ * username/password auth, which is enough to make the currently implemented client tests to pass.
  *
  * <p>
- * Usually the server will be started in @Before and stopped in @After for a unit test using HttpClient with the
- * setProxyXXX methods.
+ * Usually the server will be started in @Before and stopped in @After for a unit test using HttpClient or NetClient
+ * with the setProxyOptions method.
  *
  * @author <a href="http://oss.lehmann.cx/">Alexander Lehmann</a>
  */

@@ -13,14 +13,14 @@ import io.vertx.core.net.NetSocket;
 import io.vertx.core.streams.Pump;
 
 /**
- * Http Connect Proxy
- *
- * <p>A simple Http CONNECT proxy for testing https proxy functionality. HTTP server running on localhost allowing
- * CONNECT requests only. This is basically a socket forwarding protocol allowing to use the proxy server to connect to
- * the internet.
+ * SOCKS4 Proxy
  * <p>
- * Usually the server will be started in @Before and stopped in @After for a unit test using HttpClient with the
- * setProxyXXX methods.
+ * A simple SOCKS4/4a proxy for testing SOCKS functionality. Currently we only support tcp connect and
+ * username auth, which is enough to make the currently implemented client tests to pass.
+ *
+ * <p>
+ * Usually the server will be started in @Before and stopped in @After for a unit test using HttpClient or NetClient
+ * with the setProxyOptions method.
  *
  * @author <a href="http://oss.lehmann.cx/">Alexander Lehmann</a>
  */
@@ -28,8 +28,6 @@ public class Socks4Proxy extends TestProxyBase {
 
   private static final Logger log = LoggerFactory.getLogger(Socks4Proxy.class);
 
-  //  private static final Buffer clientInit = Buffer.buffer(new byte[] { 5, 1, 0 });
-  //  private static final Buffer serverReply = Buffer.buffer(new byte[] { 5, 0 });
   private static final Buffer clientRequest = Buffer.buffer(new byte[] { 4, 1 });
   private static final Buffer connectResponse = Buffer.buffer(new byte[] { 0, 90, 0, 0, 0, 0, 0, 0 });
   private static final Buffer errorResponse = Buffer.buffer(new byte[] { 0, 91, 0, 0, 0, 0, 0, 0 });
