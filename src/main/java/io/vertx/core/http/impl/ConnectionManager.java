@@ -51,8 +51,8 @@ import io.vertx.core.net.impl.AsyncResolveBindConnectHelper;
 import io.vertx.core.net.impl.ChannelProviderAdditionalOperations;
 import io.vertx.core.net.impl.PartialPooledByteBufAllocator;
 import io.vertx.core.net.impl.SSLHelper;
+import io.vertx.core.net.impl.proxy.ProxyChannelProvider;
 import io.vertx.core.net.impl.ChannelProvider;
-import io.vertx.core.net.impl.ProxyChannelProvider;
 
 import javax.net.ssl.SSLHandshakeException;
 import java.util.ArrayDeque;

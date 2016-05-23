@@ -42,6 +42,7 @@ import io.vertx.core.net.NetClient;
 import io.vertx.core.net.NetClientOptions;
 import io.vertx.core.net.NetSocket;
 import io.vertx.core.net.ProxyOptions;
+import io.vertx.core.net.impl.proxy.ProxyChannelProvider;
 import io.vertx.core.spi.metrics.Metrics;
 import io.vertx.core.spi.metrics.MetricsProvider;
 import io.vertx.core.spi.metrics.TCPMetrics;
@@ -250,7 +251,14 @@ public class NetClientImpl implements NetClient, MetricsProvider {
       }
     };
 
-    channelProvider.connect(vertx, bootstrap, options.getProxyOptions(), host, port, channelHandler);
+    try {
+      channelProvider.connect(vertx, bootstrap, options.getProxyOptions(), host, port, channelHandler);
+    } catch (NoClassDefFoundError e) {
+      if (options.getProxyOptions() != null && e.getMessage().contains("io/netty/handler/proxy")) {
+        log.warn("Depedency io.netty:netty-handler-proxy missing - check your classpath");
+        channelHandler.handle(Future.failedFuture(e));
+      }
+    }
   }
 
   private void connected(ContextImpl context, Channel ch, Handler<AsyncResult<NetSocket>> connectHandler) {

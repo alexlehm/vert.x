@@ -1,7 +1,7 @@
 /**
  * 
  */
-package io.vertx.core.net.impl;
+package io.vertx.core.net.impl.proxy;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -27,6 +27,8 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.core.net.ProxyOptions;
 import io.vertx.core.net.ProxyType;
+import io.vertx.core.net.impl.ChannelProvider;
+import io.vertx.core.net.impl.ChannelProviderAdditionalOperations;
 
 /**
  * @author <a href="http://oss.lehmann.cx/">Alexander Lehmann</a>
