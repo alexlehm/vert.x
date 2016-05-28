@@ -1474,7 +1474,9 @@ public class FileSystemTest extends VertxTestBase {
 
   private void testFSProps(String fileName,
                            Handler<FileSystemProps> afterOK) throws Exception {
-    vertx.fileSystem().fsProps(testDir + pathSep + fileName, ar -> {
+    String path = testDir + pathSep + fileName;
+    log.info("path=" + path, new Exception());
+    vertx.fileSystem().fsProps(path, ar -> {
       if (ar.failed()) {
         fail(ar.cause().getMessage());
       } else {
