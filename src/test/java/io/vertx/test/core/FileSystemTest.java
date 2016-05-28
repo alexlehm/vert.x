@@ -36,6 +36,7 @@ import io.vertx.core.streams.Pump;
 import io.vertx.core.streams.ReadStream;
 import io.vertx.core.streams.WriteStream;
 import org.junit.Assume;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -1460,6 +1461,7 @@ public class FileSystemTest extends VertxTestBase {
     await();
   }
 
+  @Ignore
   @Test
   public void testFSProps() throws Exception {
     String fileName = "some-file.txt";
