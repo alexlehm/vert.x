@@ -1479,7 +1479,7 @@ public class FileSystemTest extends VertxTestBase {
     vertx.fileSystem().fsProps(path, ar -> {
       if (ar.failed()) {
         log.warn("failure", new Exception());
-        fail(ar.cause().getMessage());
+        fail(ar.cause());
       } else {
         afterOK.handle(ar.result());
         testComplete();
