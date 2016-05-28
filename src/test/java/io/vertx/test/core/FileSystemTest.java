@@ -30,6 +30,8 @@ import io.vertx.core.file.OpenOptions;
 import io.vertx.core.file.impl.AsyncFileImpl;
 import io.vertx.core.impl.Utils;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import io.vertx.core.streams.Pump;
 import io.vertx.core.streams.ReadStream;
 import io.vertx.core.streams.WriteStream;
@@ -62,6 +64,8 @@ import static io.vertx.test.core.TestUtils.*;
  */
 public class FileSystemTest extends VertxTestBase {
 
+  private Logger log = LoggerFactory.getLogger(FileSystemTest.class);
+
   private static final String DEFAULT_DIR_PERMS = "rwxr-xr-x";
   private static final String DEFAULT_FILE_PERMS = "rw-r--r--";
 
@@ -77,6 +81,7 @@ public class FileSystemTest extends VertxTestBase {
     pathSep = fs.getSeparator();
     File ftestDir = testFolder.newFolder();
     testDir = ftestDir.toString();
+    log.info("testDir=" + testDir);
   }
 
   @Test
