@@ -21,6 +21,7 @@ import org.junit.After;
 import org.junit.Before;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.concurrent.CountDownLatch;
@@ -40,22 +41,24 @@ public class CommandTestBase {
 
   protected PrintStream os;
   protected PrintStream err;
+
   protected VertxCommandLauncher cli;
 
   @Before
   public void setUp() throws IOException {
     cli = new VertxCommandLauncher();
+
     output = new ByteArrayOutputStream();
     error = new ByteArrayOutputStream();
 
     // We need to reset the log configuration to recreate the logger
     // Indeed print stream may have been cached.
     LogManager.getLogManager().reset();
-    LogManager.getLogManager().readConfiguration();
+    LogManager.getLogManager().readConfiguration(new FileInputStream("capturelog.properties"));
   }
 
   @After
-  public void tearDown() throws InterruptedException {
+  public void tearDown() throws InterruptedException, SecurityException {
     stop();
 
     if (os != null) {
@@ -75,6 +78,13 @@ public class CommandTestBase {
       error.close();
     } catch (IOException e) {
       // Ignore it.
+    }
+    LogManager.getLogManager().reset();
+    try {
+      LogManager.getLogManager().readConfiguration();
+    } catch (IOException ex) {
+      // TODO Auto-generated catch block
+      ex.printStackTrace();
     }
   }
 
@@ -130,6 +140,10 @@ public class CommandTestBase {
       latch.countDown();
     });
     awaitLatch(latch);
+  }
+
+  protected String getLog() {
+    return LogCaptureHandler.getLog();
   }
 
 }

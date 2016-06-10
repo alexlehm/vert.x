@@ -17,6 +17,7 @@ package io.vertx.core.impl.launcher.commands;
 
 import io.vertx.core.Vertx;
 import io.vertx.test.fakecluster.FakeClusterManager;
+
 import org.junit.After;
 import org.junit.Test;
 
@@ -54,15 +55,13 @@ public class BareCommandTest extends CommandTestBase {
 
   @Test
   public void testRegularBareCommand() throws InterruptedException, IOException {
-    record();
 
     cli.dispatch(new String[]{"bare"});
 
-    waitUntil(() -> error.toString().contains("A quorum has been obtained."));
+    waitUntil(() -> getLog().contains("A quorum has been obtained."));
     assertThatVertxInstanceHasBeenCreated();
-    stop();
 
-    assertThat(error.toString())
+    assertThat(getLog())
         .contains("Starting clustering...")
         .contains("No cluster-host specified")
         .contains("Any deploymentIDs waiting on a quorum will now be deployed");
@@ -70,14 +69,12 @@ public class BareCommandTest extends CommandTestBase {
 
   @Test
   public void testOldBare() throws InterruptedException, IOException {
-    record();
+
     cli.dispatch(new String[]{"-ha"});
 
+    waitUntil(() -> getLog().contains("A quorum has been obtained."));
 
-    waitUntil(() -> error.toString().contains("A quorum has been obtained."));
-    stop();
-
-    assertThat(error.toString())
+    assertThat(getLog())
         .contains("Starting clustering...")
         .contains("No cluster-host specified")
         .contains("Any deploymentIDs waiting on a quorum will now be deployed");
@@ -85,14 +82,13 @@ public class BareCommandTest extends CommandTestBase {
 
   @Test
   public void testRegularBareCommandWithClusterHost() {
-    record();
 
     cli.dispatch(new String[]{"bare", "-cluster-host", "127.0.0.1"});
 
-    waitUntil(() -> error.toString().contains("A quorum has been obtained."));
+    waitUntil(() -> getLog().contains("A quorum has been obtained."));
     assertThatVertxInstanceHasBeenCreated();
-    stop();
-    assertThat(error.toString())
+
+    assertThat(getLog())
         .contains("Starting clustering...")
         .doesNotContain("No cluster-host specified")
         .contains("Any deploymentIDs waiting on a quorum will now be deployed");
@@ -100,18 +96,16 @@ public class BareCommandTest extends CommandTestBase {
 
   @Test
   public void testOldBareWithClusterHost() throws InterruptedException, IOException {
-    record();
+
     cli.dispatch(new String[]{"-ha", "-cluster-host", "127.0.0.1"});
 
 
-    waitUntil(() -> error.toString().contains("A quorum has been obtained."));
-    stop();
+    waitUntil(() -> getLog().contains("A quorum has been obtained."));
 
-    assertThat(error.toString())
+    assertThat(getLog())
         .contains("Starting clustering...")
         .doesNotContain("No cluster-host specified")
         .contains("Any deploymentIDs waiting on a quorum will now be deployed");
   }
-
 
 }
