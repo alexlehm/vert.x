@@ -21,6 +21,7 @@ import io.vertx.core.logging.LoggerFactory;
 import io.vertx.test.fakecluster.FakeClusterManager;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -35,6 +36,12 @@ public class BareCommandTest extends CommandTestBase {
 
   protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
+  @Before
+  public void setUp() throws IOException {
+    log.info("test starting");
+    super.setUp();
+  }
+  
   @After
   public void tearDown() throws InterruptedException {
     super.tearDown();
