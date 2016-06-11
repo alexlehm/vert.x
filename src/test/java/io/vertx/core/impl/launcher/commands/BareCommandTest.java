@@ -19,10 +19,13 @@ import io.vertx.core.Vertx;
 import io.vertx.test.fakecluster.FakeClusterManager;
 
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.function.BooleanSupplier;
+import java.util.logging.LogManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -70,7 +73,15 @@ public class BareCommandTest extends CommandTestBase {
   @Test
   public void testOldBare() throws InterruptedException, IOException {
 
+    listLoggerNames();
+
+    System.out.println("testOldBare()");
+
     cli.dispatch(new String[]{"-ha"});
+
+    listLoggerNames();
+
+    System.out.println("testOldBare()");
 
     waitUntil(() -> getLog().contains("A quorum has been obtained."));
 
@@ -80,10 +91,23 @@ public class BareCommandTest extends CommandTestBase {
         .contains("Any deploymentIDs waiting on a quorum will now be deployed");
   }
 
+  /**
+   * 
+   */
+  private void listLoggerNames() {
+    for (Enumeration<String> e = LogManager.getLogManager().getLoggerNames(); e.hasMoreElements();) {
+      System.out.println(e.nextElement());
+    }
+  }
+
   @Test
   public void testRegularBareCommandWithClusterHost() {
 
+    listLoggerNames();
+
     cli.dispatch(new String[]{"bare", "-cluster-host", "127.0.0.1"});
+
+    listLoggerNames();
 
     waitUntil(() -> getLog().contains("A quorum has been obtained."));
     assertThatVertxInstanceHasBeenCreated();

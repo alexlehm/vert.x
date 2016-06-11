@@ -21,6 +21,7 @@ public class LogCaptureHandler extends Handler {
    * @param name
    */
   public LogCaptureHandler() {
+    System.out.println("constructor called");
     flush();
   }
 

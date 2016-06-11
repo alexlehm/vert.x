@@ -46,6 +46,10 @@ public class CommandTestBase {
 
   @Before
   public void setUp() throws IOException {
+
+    stop();
+    System.out.println("CommandTestBase.setUp()");
+
     cli = new VertxCommandLauncher();
 
     output = new ByteArrayOutputStream();
@@ -55,6 +59,8 @@ public class CommandTestBase {
     // Indeed print stream may have been cached.
     LogManager.getLogManager().reset();
     LogManager.getLogManager().readConfiguration(new FileInputStream("capturelog.properties"));
+
+    System.out.println("CommandTestBase.setUp() exit");
   }
 
   @After
@@ -89,6 +95,7 @@ public class CommandTestBase {
   }
 
   public void record() {
+    System.out.println("record()");
     os = new PrintStream(output);
     err = new PrintStream(error);
 
@@ -103,6 +110,7 @@ public class CommandTestBase {
     if (System.err != originalErrorPrintStream) {
       System.setErr(originalErrorPrintStream);
     }
+    System.out.println("stop()");
   }
 
   protected void waitUntil(BooleanSupplier supplier) {
