@@ -21,7 +21,6 @@ public class LogCaptureHandler extends Handler {
    * @param name
    */
   public LogCaptureHandler() {
-    System.out.println("constructor called");
     flush();
   }
 
@@ -31,7 +30,7 @@ public class LogCaptureHandler extends Handler {
   @Override
   public void publish(LogRecord logRecord) {
     ps.println(logRecord.getMessage());
-    System.err.println("LOG:"+logRecord.getMessage());
+    System.err.println(logRecord.getMessage());
   }
 
   /* (non-Javadoc)

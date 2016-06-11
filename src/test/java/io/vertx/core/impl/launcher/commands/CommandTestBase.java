@@ -46,10 +46,6 @@ public class CommandTestBase {
 
   @Before
   public void setUp() throws IOException {
-
-    stop();
-    System.out.println("CommandTestBase.setUp()");
-
     cli = new VertxCommandLauncher();
 
     output = new ByteArrayOutputStream();
@@ -58,9 +54,7 @@ public class CommandTestBase {
     // We need to reset the log configuration to recreate the logger
     // Indeed print stream may have been cached.
     LogManager.getLogManager().reset();
-    LogManager.getLogManager().readConfiguration(new FileInputStream("capturelog.properties"));
-
-    System.out.println("CommandTestBase.setUp() exit");
+    LogManager.getLogManager().readConfiguration(new FileInputStream("src/test/resources/capturelog.properties"));
   }
 
   @After
@@ -95,7 +89,6 @@ public class CommandTestBase {
   }
 
   public void record() {
-    System.out.println("record()");
     os = new PrintStream(output);
     err = new PrintStream(error);
 
@@ -110,7 +103,6 @@ public class CommandTestBase {
     if (System.err != originalErrorPrintStream) {
       System.setErr(originalErrorPrintStream);
     }
-    System.out.println("stop()");
   }
 
   protected void waitUntil(BooleanSupplier supplier) {
