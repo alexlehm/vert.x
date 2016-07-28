@@ -57,6 +57,13 @@ import java.util.regex.Pattern;
  */
 public class AddressResolver {
 
+  private static final int DEFAULT_NDOTS;
+  private static final Pattern NDOTS_OPTIONS_PATTERN = Pattern.compile("^[ \\t\\f]*options[ \\t\\f]+ndots:[ \\t\\f]*(\\d)+(?=$|\\s)", Pattern.MULTILINE);
+  private static final String DISABLE_DNS_RESOLVER_PROP_NAME = "vertx.disableDnsResolver";
+  private static final boolean DISABLE_DNS_RESOLVER = Boolean.getBoolean(DISABLE_DNS_RESOLVER_PROP_NAME);
+
+  // make sure we call the static block after the NDOTS pattern has been initialized, otherwise
+  // it is null in parseNdotsFromResolvConf
   static {
     int ndots = 1;
     if (ExecUtils.isLinux()) {
@@ -71,11 +78,6 @@ public class AddressResolver {
     }
     DEFAULT_NDOTS = ndots;
   }
-
-  private static final int DEFAULT_NDOTS;
-  private static final Pattern NDOTS_OPTIONS_PATTERN = Pattern.compile("^[ \\t\\f]*options[ \\t\\f]+ndots:[ \\t\\f]*(\\d)+(?=$|\\s)", Pattern.MULTILINE);
-  private static final String DISABLE_DNS_RESOLVER_PROP_NAME = "vertx.disableDnsResolver";
-  private static final boolean DISABLE_DNS_RESOLVER = Boolean.getBoolean(DISABLE_DNS_RESOLVER_PROP_NAME);
 
   private final Vertx vertx;
   private final AddressResolverGroup<InetSocketAddress> resolverGroup;
