@@ -57,6 +57,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.IntStream;
 
 /**
  * @author <a href="mailto:nmaurer@redhat.com">Norman Maurer</a>
@@ -258,13 +259,15 @@ public final class DnsClientImpl implements DnsClient {
                   List<DnsResource> resources = msg.getAnswers();
                   List<Object> records = new ArrayList<>(resources.size());
                   for (DnsResource resource : msg.getAnswers()) {
-                    Object record = RecordDecoderFactory.getFactory().decode(resource.type(), msg, resource);
-                    if (record instanceof InetAddress) {
-                      record = ((InetAddress)record).getHostAddress();
+                    if (IntStream.of(types).anyMatch(t -> t == resource.type())) {
+                      Object record = RecordDecoderFactory.getFactory().decode(resource.type(), msg, resource);
+                      if (record instanceof InetAddress) {
+                        record = ((InetAddress) record).getHostAddress();
+                      }
                       records.add(record);
                     }
-
                   }
+
                   setResult(result, records);
                 } else {
                   setResult(result, new DnsException(code));
