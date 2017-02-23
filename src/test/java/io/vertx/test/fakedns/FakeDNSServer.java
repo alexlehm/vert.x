@@ -302,6 +302,34 @@ public final class FakeDNSServer extends DnsServer {
     });
   }
 
+  public static FakeDNSServer testLookup4CNAME(final String cname, final String ip) {
+    return new FakeDNSServer(new RecordStore() {
+      @Override
+      public Set<ResourceRecord> getRecords(QuestionRecord questionRecord)
+          throws org.apache.directory.server.dns.DnsException {
+        Set<ResourceRecord> set = new HashSet<>();
+
+        ResourceRecordModifier rm2 = new ResourceRecordModifier();
+        rm2.setDnsClass(RecordClass.IN);
+        rm2.setDnsName(cname);
+        rm2.setDnsTtl(100);
+        rm2.setDnsType(RecordType.A);
+        rm2.put(DnsAttribute.IP_ADDRESS, ip);
+        set.add(rm2.getEntry());
+
+        ResourceRecordModifier rm = new ResourceRecordModifier();
+        rm.setDnsClass(RecordClass.IN);
+        rm.setDnsName("vertx.io");
+        rm.setDnsTtl(100);
+        rm.setDnsType(RecordType.CNAME);
+        rm.put(DnsAttribute.DOMAIN_NAME, cname);
+        set.add(rm.getEntry());
+
+        return set;
+      }
+    });
+  }
+
   @Override
   public void start() throws IOException {
     UdpTransport transport = new UdpTransport("127.0.0.1", PORT);

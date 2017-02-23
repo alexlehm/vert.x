@@ -261,10 +261,10 @@ public final class DnsClientImpl implements DnsClient {
                     Object record = RecordDecoderFactory.getFactory().decode(resource.type(), msg, resource);
                     if (record instanceof InetAddress) {
                       record = ((InetAddress)record).getHostAddress();
+                      records.add(record);
                     }
-                    records.add(record);
-                  }
 
+                  }
                   setResult(result, records);
                 } else {
                   setResult(result, new DnsException(code));
