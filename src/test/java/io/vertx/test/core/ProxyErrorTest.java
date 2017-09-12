@@ -1,7 +1,10 @@
 package io.vertx.test.core;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.concurrent.CountDownLatch;
 
+import org.junit.Assume;
 import org.junit.Test;
 
 import io.vertx.core.Handler;
@@ -57,6 +60,7 @@ public class ProxyErrorTest extends VertxTestBase {
 
   @Test
   public void testProxyHttpsHostUnknown() throws Exception {
+    Assume.assumeFalse(hostResolves("unknown.hostname"));
     expectProxyException(0, null, "https://unknown.hostname/");
   }
 
@@ -72,7 +76,17 @@ public class ProxyErrorTest extends VertxTestBase {
 
   @Test
   public void testProxyHostUnknown() throws Exception {
+    Assume.assumeFalse(hostResolves("unknown.hostname"));
     expectStatusError(0, 504, null, "http://unknown.hostname/");
+  }
+
+  private boolean hostResolves(String host) {
+    try {
+      InetAddress.getByName(host);
+    } catch (UnknownHostException ex) {
+      return false;
+    }
+    return true;
   }
 
   // we expect the request to fail with a ProxyConnectException if we use https
